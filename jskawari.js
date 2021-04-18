@@ -5,10 +5,20 @@ function jskawari() {
     var entrycollection = [];
     // 辞書配列：所属する単語IDがworddictionary[エントリ名]に格納されている。確率調整目的で単語IDの重複を許す。
     var worddictionary = {};
+    // 履歴辞書：一回の単語パースの際、解釈が確定したエントリ呼び出しが順に格納される辞書。パースの間のみ有効。N番目のエントリを${N-1}で引用できる。
+    // この辞書は単語IDではなく、文字列が直接格納されている
+    var historydictionary = [];
 
     // 内部関数：あるエントリから1単語をランダムに呼び出す。エントリ呼び出しを解釈しない
     function rawEntryCall(entry) {
-        if (entrycollection.indexOf(entry) == -1) {
+        if (isNaN(entry) == false) { // エントリ名が整数なので履歴辞書の参照
+            let index = Math.floor(entry);
+            if (index < 0 || index >= historydictionary.length) { // 履歴辞書の範囲外だったので空文字を返す
+                return "";
+            } else {
+                return historydictionary[index];
+            }
+        } else if (entrycollection.indexOf(entry) == -1) {
             //該当するエントリは存在しなかったので空文字を返す
             return "";
         } else {
@@ -25,13 +35,18 @@ function jskawari() {
         //エントリ呼び出し見付ける正規表現、最も内側かつ最も左側にマッチする
         var entrycallRegex = /\$\{([^${}]+)\}/;
         var isExistEntryCall = true;
+        historydictionary = [];
         do {
             let result = entrycallRegex.exec(answer);
             if (result == null) {
                 isExistEntryCall = false;
             } else {
                 // エントリ呼び出しがあったのでエントリーの中身で置換
-                answer = answer.replace(result[0], rawEntryCall(result[1]));
+                let entryString = rawEntryCall(result[1]);
+                answer = answer.replace(result[0], entryString);
+                if (isNaN(result[1])) { // もしエントリ名が数字ではない＝通常のエントリであれば、エントリの中身を履歴辞書に追加
+                    historydictionary.push(entryString);
+                }                
             }
         } while (isExistEntryCall);
         // ここに来た時点で、answerはエントリ呼び出しを含まない文字列
@@ -97,21 +112,20 @@ dic.insert("number")(
     3,
     4,
     5,
-    6
-)
-
-dic.insert("sentence")(
-    "Today is ${number}:${day}",
-    "No. ${number}: ${day}の日"
+    6,
+    7,
+    8,
+    9,
+    10
 );
 
-console.log("sentence: " + dic.call("sentence"));
-console.log("sentence: " + dic.call("sentence"));
-console.log("sentence: " + dic.call("sentence"));
-console.log("sentence: " + dic.call("sentence"));
-console.log("sentence: " + dic.call("sentence"));
-console.log("sentence: " + dic.call("sentence"));
-console.log("sentence: " + dic.call("sentence"));
-console.log("sentence: " + dic.call("sentence"));
-console.log("sentence: " + dic.call("sentence"));
+dic.insert("sentence")(
+    "${number}: Today is ${day}.",
+    "No. ${number}: 今日の曜日は${day}",
+    "${number}, ${number}, ${number}。逆順で言うと${2}, ${1}, ${0}。"
+);
+
+for(let i = 0; i< 10; i++) {
+    console.log("sentence: " + dic.call("sentence"));
+}
 */
