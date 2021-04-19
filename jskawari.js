@@ -23,7 +23,7 @@ function jskawari() {
             return "";
         } else {
             // 該当するエントリが存在したので、エントリ辞書から該当単語IDをランダム選択
-            let wordindex = Math.floor(Math.random() * worddictionary[entry].length)
+            let wordindex = Math.floor(Math.random() * worddictionary[entry].length);
             let wordid = worddictionary[entry][wordindex];
             // 単語IDから単語に変換の上で解釈を行わず返す
             return wordcollection[wordid];
@@ -35,7 +35,7 @@ function jskawari() {
         //エントリ呼び出し見付ける正規表現、最も内側かつ最も左側にマッチする
         var entrycallRegex = /\$\{([^${}]+)\}/;
         var isExistEntryCall = true;
-        historydictionary = [];
+        historydictionary.splice(0);
         do {
             let result = entrycallRegex.exec(answer);
             if (result == null) {
@@ -69,6 +69,59 @@ function jskawari() {
             worddictionary[entry].push(wordcollection.indexOf(words[i]));
         }
     }
+    // 内部関数: 指定されたエントリを削除する。単語集合から該当エントリに所属する単語は削除しない。（実装簡易化のため）
+    function clear(entry) {
+        if (entrycollection.indexOf(entry) >= 0) { // エントリが実際に存在していたので辞書配列とエントリ集合から削除
+            worddictionary[entry].splice(0); // メモリリークは嫌だ
+            delete worddictionary[entry];
+            entrycollection.splice(entrycollection.indexOf(entry), 1);
+        }
+    }
+    // 内部関数: 指定されたエントリを一度初期化してから単語を追加する。単語は複数同時追加対応
+    function set(entry,...words) {
+        if (entrycollection.indexOf(entry) < 0) {
+            // エントリが存在していなかったので初期化
+            entrycollection.push(entry);
+            worddictionary[entry]=[];
+        } else {
+            // エントリが存在していたので全要素削除
+            worddictionary[entry].splice(0); // メモリリークは嫌だ
+        }
+        // wordsのすべての単語をentryに追加
+        for(let i = 0; i < words.length; i++) {
+            if (wordcollection.indexOf(words[i]) < 0) {
+                // 未知単語だったので単語集合に追加
+                wordcollection.push(words[i]);
+            }
+            // ここに来る時、words[i]は必ず既知の単語
+            worddictionary[entry].push(wordcollection.indexOf(words[i]));
+        }
+    }
+    // 内部関数: 指定したエントリにある単語が存在すればtrue、存在しなければfalseを返す
+    function find(entry, word) {
+        // そもそもエントリが存在しない場合はfalseを返して終わる
+        if (entrycollection.indexOf(entry) < 0) {
+            return false;
+        } else if (wordcollection.indexOf(word) < 0) {
+            return false;
+        } else {
+            if (worddictionary[entry].indexOf(wordcollection.indexOf(word)) >= 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+    // 内部関数: 指定したエントリにある全ての単語を配列で返す
+    function enumerate(entry) {
+        var result = [];
+        if (entrycollection.indexOf(entry) >= 0) {
+            for(let i = 0; i < worddictionary[entry].length; i++) {
+                result.push(wordcollection[worddictionary[entry][i]]);
+            }
+        }
+        return result; // 存在しないエントリだった場合は空配列を返す
+    }
     
     // クロージャーとしての返り値 => APIの開示
     return {
@@ -81,6 +134,24 @@ function jskawari() {
             return function(...words) {
                 return insert(entry,...words);
             };
+        },
+        // [API] clear: エントリの削除
+        clear : function(entry) {
+            return clear(entry);
+        },
+        // [API] set: 辞書に単語を格納（複数単語同時追加対応）
+        set : function(entry) {
+            return function(...words) {
+                return set(entry,...words);
+            };
+        },
+        // [API] find: エントリの検索、もしwordがfindに存在するならtrue、それ以外はfalseを返す
+        find : function(entry, word) {
+            return find(entry, word);
+        },
+        // [API] enumerate: 指定したエントリにあるすべての単語を配列で返す
+        enumerate : function(entry) {
+            return enumerate(entry);
         }
     };
 }
@@ -128,4 +199,15 @@ dic.insert("sentence")(
 for(let i = 0; i< 10; i++) {
     console.log("sentence: " + dic.call("sentence"));
 }
+
+dic.insert("test")("1","2","3","4","5","6");
+console.log("test: "+ dic.enumerate("test").join("/"));
+console.log("test(is exist '3'): "+ dic.find("test", "3"));
+console.log("test(is exist '7'): "+ dic.find("test", "7"));
+dic.set("test")("a","b","c");
+console.log("test(after set): "+ dic.enumerate("test").join("/"));
+console.log("test(is exist 'a'): "+ dic.find("test", "a"));
+console.log("test(is exist 'z'): "+ dic.find("test", "z"));
+dic.clear("test");
+console.log("test(after clear): "+ dic.enumerate("test").join("/"));
 */
