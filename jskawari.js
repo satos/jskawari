@@ -9,25 +9,45 @@ function jskawari() {
     // この辞書は単語IDではなく、文字列が直接格納されている
     var historydictionary = [];
 
-    // 内部関数：あるエントリから1単語をランダムに呼び出す。エントリ呼び出しを解釈しない
-    function rawEntryCall(entry) {
-        if (isNaN(entry) == false) { // エントリ名が整数なので履歴辞書の参照
-            let index = Math.floor(entry);
-            if (index < 0 || index >= historydictionary.length) { // 履歴辞書の範囲外だったので空文字を返す
-                return "";
-            } else {
-                return historydictionary[index];
-            }
-        } else if (entrycollection.indexOf(entry) == -1) {
-            //該当するエントリは存在しなかったので空文字を返す
-            return "";
-        } else {
-            // 該当するエントリが存在したので、エントリ辞書から該当単語IDをランダム選択
-            let wordindex = Math.floor(Math.random() * worddictionary[entry].length);
-            let wordid = worddictionary[entry][wordindex];
-            // 単語IDから単語に変換の上で解釈を行わず返す
-            return wordcollection[wordid];
+    // 内部関数：単語から単語IDを返す。単語集合に存在しない単語だった場合、新しい単語IDを生成し単語集合に格納した上で単語IDを返す
+    function wordID(word) {
+        if (wordcollection.indexOf(word) < 0) {
+            // 未知単語だったので単語集合に追加
+            wordcollection.push(word);
         }
+        // 単語集合内におけるindexが単語ID
+        return wordcollection.indexOf(word);
+    }
+    // 内部関数：あるエントリから1単語をランダムに呼び出す。エントリ呼び出しを解釈しない
+    function rawEntryCall(...entries) {
+        let wordidlist = [];
+        // entries中のすべてエントリの中身を一度wordidlistにコピーする
+        for(let eindex = 0; eindex < entries.length; eindex++) {
+            let entry = entries[eindex];
+            if (isNaN(entry) == false) { // エントリ名が整数なので履歴辞書の参照
+                let index = Math.floor(entry);
+                if (index < 0 || index >= historydictionary.length) { // 履歴辞書の範囲外だったので無視
+                    continue;
+                } else {
+                    wordidlist.push(wordID(historydictionary[index])); // 履歴辞書から単語IDに変換してwordidlistに追加
+                }
+            } else if (entrycollection.indexOf(entry) == -1) {
+                //該当するエントリは存在しなかったので無視
+                continue;
+            } else {
+                // 該当するエントリが存在したので、wordidlistにエントリの中身をすべて追加
+                wordidlist.push(...worddictionary[entry]);
+            }
+        }
+        // エントリ辞書から該当単語IDをランダム選択
+        if (wordidlist.length == 0) {
+            // 有効な中身を持つエントリが一つも存在しなかった
+            return "";
+        }
+        // ここに来るということは、有効な単語が一つは存在する
+        let wordindex = Math.floor(Math.random() * wordidlist.length);
+        // 単語IDから単語に変換の上で解釈を行わず返す
+        return wordcollection[wordidlist[wordindex]];
     }
     // 内部関数：与えられた単語を文法に従って、ただの文字列になるまで再帰的に解釈する
     function parse(word) {
@@ -42,7 +62,9 @@ function jskawari() {
                 isExistEntryCall = false;
             } else {
                 // エントリ呼び出しがあったのでエントリーの中身で置換
-                let entryString = rawEntryCall(result[1]);
+                // エントリ呼び出し= 'エントリ名1'('+エントリ名2'...)
+                // エントリ名の前後にスペースがあってもよいので、スペースは排除する
+                let entryString = rawEntryCall(...result[1].split('+').map(s => s.trim()));
                 answer = answer.replace(result[0], entryString);
                 if (isNaN(result[1])) { // もしエントリ名が数字ではない＝通常のエントリであれば、エントリの中身を履歴辞書に追加
                     historydictionary.push(entryString);
@@ -61,12 +83,7 @@ function jskawari() {
         }
         // wordsのすべての単語をentryに追加
         for(let i = 0; i < words.length; i++) {
-            if (wordcollection.indexOf(words[i]) < 0) {
-                // 未知単語だったので単語集合に追加
-                wordcollection.push(words[i]);
-            }
-            // ここに来る時、words[i]は必ず既知の単語
-            worddictionary[entry].push(wordcollection.indexOf(words[i]));
+            worddictionary[entry].push(wordID(words[i]));
         }
     }
     // 内部関数: 指定されたエントリを削除する。単語集合から該当エントリに所属する単語は削除しない。（実装簡易化のため）
@@ -89,12 +106,7 @@ function jskawari() {
         }
         // wordsのすべての単語をentryに追加
         for(let i = 0; i < words.length; i++) {
-            if (wordcollection.indexOf(words[i]) < 0) {
-                // 未知単語だったので単語集合に追加
-                wordcollection.push(words[i]);
-            }
-            // ここに来る時、words[i]は必ず既知の単語
-            worddictionary[entry].push(wordcollection.indexOf(words[i]));
+            worddictionary[entry].push(wordID(words[i]));
         }
     }
     // 内部関数: 指定したエントリにある単語が存在すればtrue、存在しなければfalseを返す
@@ -210,4 +222,20 @@ console.log("test(is exist 'a'): "+ dic.find("test", "a"));
 console.log("test(is exist 'z'): "+ dic.find("test", "z"));
 dic.clear("test");
 console.log("test(after clear): "+ dic.enumerate("test").join("/"));
+
+dic.insert("AAA")("A1", "A2", "A3");
+dic.insert("BBB")("B1", "B2", "B3");
+dic.insert("CCC")("C1", "C2", "C3", "C4");
+dic.insert("AB")("${AAA+BBB}");
+dic.insert("BC")("${BBB+CCC}");
+dic.insert("CA")("${ CCC + AAA }");
+dic.insert("ABC")("${AAA+BBB+CCC}");
+dic.insert("TripleA")("${ AAA    }");
+dic.insert("HistoryPlus")("${AAA+BBB},${BBB+CCC},${CCC+AAA},${0},${AAA},${1},${1+2}");
+console.log("AB:" + dic.call("AB") + "+" + dic.call("AB") + "+" + dic.call("AB") + "+" + dic.call("AB") + "+" + dic.call("AB"));
+console.log("BC:" + dic.call("BC") + "+" + dic.call("BC") + "+" + dic.call("BC") + "+" + dic.call("BC") + "+" + dic.call("BC"));
+console.log("CA:" + dic.call("CA") + "+" + dic.call("CA") + "+" + dic.call("CA") + "+" + dic.call("CA") + "+" + dic.call("CA"));
+console.log("ABC:" + dic.call("ABC") + "+" + dic.call("ABC") + "+" + dic.call("ABC") + "+" + dic.call("ABC") + "+" + dic.call("ABC"));
+console.log("TripleA:" + dic.call("TripleA") + "+" + dic.call("TripleA") + "+" + dic.call("TripleA"));
+console.log("history+:" + dic.call("HistoryPlus"));
 */
