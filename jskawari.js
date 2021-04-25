@@ -8,6 +8,12 @@ function jskawari() {
     // 履歴辞書：一回の単語パースの際、解釈が確定したエントリ呼び出しが順に格納される辞書。パースの間のみ有効。N番目のエントリを${N-1}で引用できる。
     // この辞書は単語IDではなく、文字列が直接格納されている
     var historydictionary = [];
+    // 関数辞書: インラインスクリプトが格納される辞書
+    var functiondictionary = {
+        choice : function(...fargs) {
+            return fargs[Math.floor(Math.random() * fargs.length)];
+        }
+    }
 
     // 内部関数：単語から単語IDを返す。単語集合に存在しない単語だった場合、新しい単語IDを生成し単語集合に格納した上で単語IDを返す
     function wordID(word) {
@@ -49,6 +55,18 @@ function jskawari() {
         // 単語IDから単語に変換の上で解釈を行わず返す
         return wordcollection[wordidlist[wordindex]];
     }
+    // 内部関数: インラインスクリプトを実行する
+    function inlineScriptCall(commandline) {
+        // 関数呼び出し '関数名:(引数1 引数2...)
+        // 引数の間、関数名、コロンの間にスペースがあってもよく、無視される 
+        let splitpos = commandline.indexOf(':');
+        let funcname = commandline.substring(0, splitpos).trim();
+        let funcargs = commandline.substring(splitpos + 1).trim().split(/\s+/);
+        if (!(funcname in functiondictionary)) {
+            return "";
+        }
+        return functiondictionary[funcname](...funcargs);
+    }
     // 内部関数：与えられた単語を文法に従って、ただの文字列になるまで再帰的に解釈する
     function parse(word) {
         var answer = word;
@@ -61,10 +79,16 @@ function jskawari() {
             if (result == null) {
                 isExistEntryCall = false;
             } else {
-                // エントリ呼び出しがあったのでエントリーの中身で置換
-                // エントリ呼び出し= 'エントリ名1'('+エントリ名2'...)
-                // エントリ名の前後にスペースがあってもよいので、スペースは排除する
-                let entryString = rawEntryCall(...result[1].split('+').map(s => s.trim()));
+                let entryString;
+                if (result[1].indexOf(':') >= 0) {
+                    // インラインスクリプト呼び出しなので関数呼び出し結果で置換
+                    entryString = inlineScriptCall(result[1]);
+                } else {
+                    // エントリ呼び出しなのでエントリーの中身で置換
+                    // エントリ呼び出し= 'エントリ名1'('+エントリ名2'...)
+                    // エントリ名の前後にスペースがあってもよいので、スペースは排除する
+                    entryString = rawEntryCall(...result[1].split('+').map(s => s.trim()));
+                }
                 answer = answer.replace(result[0], entryString);
                 if (isNaN(result[1])) { // もしエントリ名が数字ではない＝通常のエントリであれば、エントリの中身を履歴辞書に追加
                     historydictionary.push(entryString);
@@ -134,6 +158,13 @@ function jskawari() {
         }
         return result; // 存在しないエントリだった場合は空配列を返す
     }
+    // 内部関数: インラインスクリプトを追加する
+    function addfunc(funcname,funcbody) {
+        if (funcname in functiondictionary) {
+            delete functiondictionary[funcname];
+        }
+        functiondictionary[funcname] = funcbody;
+    }
     
     // クロージャーとしての返り値 => APIの開示
     return {
@@ -164,6 +195,11 @@ function jskawari() {
         // [API] enumerate: 指定したエントリにあるすべての単語を配列で返す
         enumerate : function(entry) {
             return enumerate(entry);
+        },
+        addfunc : function(funcname) {
+            return function(funcbody) {
+                return addfunc(funcname, funcbody);
+            }
         }
     };
 }
@@ -238,4 +274,12 @@ console.log("CA:" + dic.call("CA") + "+" + dic.call("CA") + "+" + dic.call("CA")
 console.log("ABC:" + dic.call("ABC") + "+" + dic.call("ABC") + "+" + dic.call("ABC") + "+" + dic.call("ABC") + "+" + dic.call("ABC"));
 console.log("TripleA:" + dic.call("TripleA") + "+" + dic.call("TripleA") + "+" + dic.call("TripleA"));
 console.log("history+:" + dic.call("HistoryPlus"));
+
+dic.insert("choicetest")("${choice:a b c}");
+console.log("choice:" + " " + dic.call("choicetest") + " " + dic.call("choicetest") + " " + dic.call("choicetest") + " " + dic.call("choicetest") + " " + dic.call("choicetest"));
+dic.addfunc("random")(function(num){ return Math.floor(Math.random() * Number(num))});
+dic.insert("randomtest")("Random(20): ${random:20}");
+for(let i = 0; i< 10; i++) {
+    console.log(dic.call("randomtest"));
+}
 */
