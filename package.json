@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node ./test/test.js",
-    "build": "rm jskawari.js && tsc"
+    "build": "rm ./build/*.* && tsc"
   },
   "repository": {
     "type": "git",
