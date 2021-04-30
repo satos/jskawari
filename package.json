@@ -2,7 +2,7 @@
   "name": "jskawari",
   "version": "1.0.0",
   "description": "華和梨の JavaScript によるサブセット再実装 / subset of pseudo AI module 'KAWARI' implemented by JavaScript",
-  "main": "index.js",
+  "main": "build/jskawari.js",
   "scripts": {
     "test": "node ./test/test.js",
     "build": "rm ./build/*.* && tsc"
