@@ -11,6 +11,16 @@
     - コロンより前の部分がインライン関数名になる
     - 引数はコロンより後の部分で、引数の間はスペースで分ける
 
+## 使い方
+
+CJS形式のモジュールとしてjskawariをインポート。
+その後jskawari()でインスタンスを生成。インスタンスのメソッドを通じて操作する。
+
+```javascript
+var jskawari = require('./jskawari');
+var dic = jskawari();
+```
+
 ## 単語登録の方法(insert)
 
 ```javascript
