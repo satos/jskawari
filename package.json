@@ -1,0 +1,20 @@
+{
+  "name": "jskawari",
+  "version": "1.0.0",
+  "description": "華和梨の JavaScript によるサブセット再実装 / subset of pseudo AI module 'KAWARI' implemented by JavaScript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/satos/jskawari.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "BSD-2-CLAUSE",
+  "bugs": {
+    "url": "https://github.com/satos/jskawari/issues"
+  },
+  "homepage": "https://github.com/satos/jskawari#readme"
+}
