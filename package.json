@@ -4,7 +4,8 @@
   "description": "華和梨の JavaScript によるサブセット再実装 / subset of pseudo AI module 'KAWARI' implemented by JavaScript",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node ./test/test.js",
+    "build": "rm jskawari.js && tsc"
   },
   "repository": {
     "type": "git",
