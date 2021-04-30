@@ -1,4 +1,4 @@
-var jskawari = require('../build/jskawari');
+var { default: jskawari } = require('../build/jskawari');
 var dic = jskawari();
 
 // * 単語登録の方法(insert)

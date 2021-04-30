@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 function jskawari() {
     // 単語集合：エントリに所属する全ての単語の集合で重複なし。単語をindexOfした結果が単語IDとなり、辞書配列に格納される。
     const wordcollection = [];
@@ -218,4 +219,5 @@ function jskawari() {
         },
     };
 }
-module.exports = jskawari;
+// エクスポート設定
+exports.default = jskawari;
