@@ -5,6 +5,8 @@
   "main": "build/jskawari.js",
   "types": "build/jskawari.d.ts",
   "scripts": {
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test",
     "test": "node ./test/test.js",
     "build": "rm ./build/*.* && tsc"
   },
