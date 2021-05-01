@@ -215,4 +215,4 @@ function jskawari() {
     };
 }
 // エクスポート設定
-export = jskawari;
+export default jskawari;
