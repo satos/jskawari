@@ -4,13 +4,25 @@
   "description": "華和梨の JavaScript によるサブセット再実装 / subset of pseudo AI module 'KAWARI' implemented by JavaScript",
   "main": "build/jskawari.js",
   "types": "build/jskawari.d.ts",
+  "exports": {
+    "import": "./esm/jskawari.mjs",
+    "require": "./build/jskawari.js",
+    "node": "./esm/jskawari.mjs",
+    "default": "./build/jskawari.js"
+  },
   "scripts": {
     "prepare": "npm run build",
     "prepublishOnly": "npm-run-all prettier:check eslint:check test",
     "test": "node ./test/test.js",
-    "build": "npm-run-all clean tsc",
-    "tsc": "tsc",
-    "clean": "rimraf ./build/*.*",
+    "build": "npm-run-all --parallel cjs esm",
+    "clean": "npm-run-all --parallel cjs:clean esm:clean",
+    "cjs": "npm-run-all cjs:clean cjs:tsc",
+    "cjs:tsc": "tsc",
+    "cjs:clean": "rimraf ./build",
+    "esm": "npm-run-all esm:clean esm:tsc esm:rename",
+    "esm:tsc": "tsc --project tsconfig.esm.json",
+    "esm:rename": "shx mv esm/jskawari.js esm/jskawari.mjs",
+    "esm:clean": "rimraf ./esm",
     "eslint:check": "eslint . --ext .js,.jsx,.ts,.tsx",
     "eslint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "prettier:check": "prettier --check .",
@@ -36,6 +48,7 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
+    "shx": "^0.3.3",
     "typescript": "^4.2.4"
   }
 }
