@@ -6,11 +6,13 @@
   "types": "build/jskawari.d.ts",
   "scripts": {
     "prepare": "npm run build",
-    "prepublishOnly": "npm-run-all prettier:check test",
+    "prepublishOnly": "npm-run-all prettier:check eslint:check test",
     "test": "node ./test/test.js",
     "build": "npm-run-all clean tsc",
     "tsc": "tsc",
     "clean": "rimraf ./build/*.*",
+    "eslint:check": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "eslint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "prettier:check": "prettier --check .",
     "prettier": "prettier --write ."
   },
