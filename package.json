@@ -6,11 +6,15 @@
   "types": "build/jskawari.d.ts",
   "scripts": {
     "prepare": "npm run build",
-    "prepublishOnly": "npm test",
+    "prepublishOnly": "npm-run-all prettier:check eslint:check test",
     "test": "node ./test/test.js",
     "build": "npm-run-all clean tsc",
     "tsc": "tsc",
-    "clean": "rimraf ./build/*.*"
+    "clean": "rimraf ./build/*.*",
+    "eslint:check": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "eslint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "prettier:check": "prettier --check .",
+    "prettier": "prettier --write ."
   },
   "repository": {
     "type": "git",
@@ -24,7 +28,13 @@
   },
   "homepage": "https://github.com/satos/jskawari#readme",
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/parser": "^4.22.0",
+    "eslint": "^7.25.0",
+    "eslint-config-airbnb-typescript": "^12.3.1",
+    "eslint-config-prettier": "^8.3.0",
     "npm-run-all": "^4.1.5",
+    "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
     "typescript": "^4.2.4"
   }

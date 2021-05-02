@@ -1,0 +1,24 @@
+{
+    "root": true,
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "project": "tsconfig.json"
+    },
+    "plugins": ["@typescript-eslint"],
+    "extends": ["airbnb-typescript", "prettier"],
+    "rules": {
+        "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }]
+    },
+    "overrides": [
+        {
+            "files": ["test/**/*.*"],
+            "env": {
+                "node": true
+            },
+            "rules": {
+                "no-console": "off",
+                "no-template-curly-in-string": "off"
+            }
+        }
+    ]
+}
