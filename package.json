@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/satos/jskawari/issues"
   },
-  "homepage": "https://github.com/satos/jskawari#readme"
+  "homepage": "https://github.com/satos/jskawari#readme",
+  "devDependencies": {
+    "typescript": "^4.2.4"
+  }
 }
