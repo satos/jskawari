@@ -92,9 +92,7 @@ function jskawari() {
                     // エントリ呼び出しなのでエントリーの中身で置換
                     // エントリ呼び出し= 'エントリ名1'('+エントリ名2'...)
                     // エントリ名の前後にスペースがあってもよいので、スペースは排除する
-                    entryString = rawEntryCall(
-                        ...result[1].split("+").map((s) => s.trim())
-                    );
+                    entryString = rawEntryCall(...result[1].split("+").map((s) => s.trim()));
                 }
                 answer = answer.replace(result[0], entryString);
                 if (isNaN(result[1] as any)) {
@@ -150,9 +148,7 @@ function jskawari() {
         } else if (wordcollection.indexOf(word) < 0) {
             return false;
         } else {
-            if (
-                worddictionary[entry].indexOf(wordcollection.indexOf(word)) >= 0
-            ) {
+            if (worddictionary[entry].indexOf(wordcollection.indexOf(word)) >= 0) {
                 return true;
             } else {
                 return false;
