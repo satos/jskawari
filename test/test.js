@@ -1,5 +1,6 @@
-var { default: jskawari } = require("../build/jskawari");
-var dic = jskawari();
+const { default: jskawari } = require("../build/jskawari");
+
+const dic = jskawari();
 
 // * 単語登録の方法(insert)
 //   - 使用法： dic.insert("単語エントリ名")("単語" [,"単語"...]);
@@ -21,19 +22,19 @@ dic.insert("sentence")(
 );
 
 for (let i = 0; i < 10; i++) {
-    console.log("sentence: " + dic.call("sentence"));
+    console.log(`sentence: ${dic.call("sentence")}`);
 }
 
 dic.insert("test")("1", "2", "3", "4", "5", "6");
-console.log("test: " + dic.enumerate("test").join("/"));
-console.log("test(is exist '3'): " + dic.find("test", "3"));
-console.log("test(is exist '7'): " + dic.find("test", "7"));
+console.log(`test: ${dic.enumerate("test").join("/")}`);
+console.log(`test(is exist '3'): ${dic.find("test", "3")}`);
+console.log(`test(is exist '7'): ${dic.find("test", "7")}`);
 dic.set("test")("a", "b", "c");
-console.log("test(after set): " + dic.enumerate("test").join("/"));
-console.log("test(is exist 'a'): " + dic.find("test", "a"));
-console.log("test(is exist 'z'): " + dic.find("test", "z"));
+console.log(`test(after set): ${dic.enumerate("test").join("/")}`);
+console.log(`test(is exist 'a'): ${dic.find("test", "a")}`);
+console.log(`test(is exist 'z'): ${dic.find("test", "z")}`);
 dic.clear("test");
-console.log("test(after clear): " + dic.enumerate("test").join("/"));
+console.log(`test(after clear): ${dic.enumerate("test").join("/")}`);
 
 dic.insert("AAA")("A1", "A2", "A3");
 dic.insert("BBB")("B1", "B2", "B3");
@@ -44,30 +45,20 @@ dic.insert("CA")("${ CCC + AAA }");
 dic.insert("ABC")("${AAA+BBB+CCC}");
 dic.insert("TripleA")("${ AAA    }");
 dic.insert("HistoryPlus")("${AAA+BBB},${BBB+CCC},${CCC+AAA},${0},${AAA},${1},${1+2}");
-console.log("AB:" + dic.call("AB") + "+" + dic.call("AB") + "+" + dic.call("AB") + "+" + dic.call("AB") + "+" + dic.call("AB"));
-console.log("BC:" + dic.call("BC") + "+" + dic.call("BC") + "+" + dic.call("BC") + "+" + dic.call("BC") + "+" + dic.call("BC"));
-console.log("CA:" + dic.call("CA") + "+" + dic.call("CA") + "+" + dic.call("CA") + "+" + dic.call("CA") + "+" + dic.call("CA"));
-console.log("ABC:" + dic.call("ABC") + "+" + dic.call("ABC") + "+" + dic.call("ABC") + "+" + dic.call("ABC") + "+" + dic.call("ABC"));
-console.log("TripleA:" + dic.call("TripleA") + "+" + dic.call("TripleA") + "+" + dic.call("TripleA"));
-console.log("history+:" + dic.call("HistoryPlus"));
+console.log(`AB:${dic.call("AB")}+${dic.call("AB")}+${dic.call("AB")}+${dic.call("AB")}+${dic.call("AB")}`);
+console.log(`BC:${dic.call("BC")}+${dic.call("BC")}+${dic.call("BC")}+${dic.call("BC")}+${dic.call("BC")}`);
+console.log(`CA:${dic.call("CA")}+${dic.call("CA")}+${dic.call("CA")}+${dic.call("CA")}+${dic.call("CA")}`);
+console.log(`ABC:${dic.call("ABC")}+${dic.call("ABC")}+${dic.call("ABC")}+${dic.call("ABC")}+${dic.call("ABC")}`);
+console.log(`TripleA:${dic.call("TripleA")}+${dic.call("TripleA")}+${dic.call("TripleA")}`);
+console.log(`history+:${dic.call("HistoryPlus")}`);
 
 dic.insert("choicetest")("${choice:a b c}");
 console.log(
-    "choice:" +
-        " " +
-        dic.call("choicetest") +
-        " " +
-        dic.call("choicetest") +
-        " " +
-        dic.call("choicetest") +
-        " " +
-        dic.call("choicetest") +
-        " " +
-        dic.call("choicetest"),
+    `choice: ${dic.call("choicetest")} ${dic.call("choicetest")} ${dic.call("choicetest")} ${dic.call("choicetest")} ${dic.call(
+        "choicetest",
+    )}`,
 );
-dic.addfunc("random")(function (num) {
-    return Math.floor(Math.random() * Number(num));
-});
+dic.addfunc("random")((num) => Math.floor(Math.random() * Number(num)));
 dic.insert("randomtest")("Random(20): ${random:20}");
 for (let i = 0; i < 10; i++) {
     console.log(dic.call("randomtest"));

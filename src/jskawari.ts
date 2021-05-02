@@ -10,7 +10,7 @@ function jskawari() {
     const historydictionary: string[] = [];
     // 関数辞書: インラインスクリプトが格納される辞書
     const functiondictionary: { [name: string]: (...fargs: any[]) => any } = {
-        choice: function (...fargs) {
+        choice(...fargs) {
             return fargs[Math.floor(Math.random() * fargs.length)];
         },
     };
@@ -26,21 +26,24 @@ function jskawari() {
     }
     // 内部関数：あるエントリから1単語をランダムに呼び出す。エントリ呼び出しを解釈しない
     function rawEntryCall(...entries: string[]) {
-        let wordidlist = [];
+        const wordidlist = [];
         // entries中のすべてエントリの中身を一度wordidlistにコピーする
         for (let eindex = 0; eindex < entries.length; eindex++) {
-            let entry = entries[eindex];
-            if (isNaN(entry as any) == false) {
+            const entry = entries[eindex];
+            // eslint-disable-next-line no-restricted-globals
+            if (isNaN(entry as any) === false) {
                 // エントリ名が整数なので履歴辞書の参照
-                let index = Math.floor(entry as any);
+                const index = Math.floor(entry as any);
                 if (index < 0 || index >= historydictionary.length) {
                     // 履歴辞書の範囲外だったので無視
+                    // eslint-disable-next-line no-continue
                     continue;
                 } else {
                     wordidlist.push(wordID(historydictionary[index])); // 履歴辞書から単語IDに変換してwordidlistに追加
                 }
-            } else if (entrycollection.indexOf(entry) == -1) {
-                //該当するエントリは存在しなかったので無視
+            } else if (entrycollection.indexOf(entry) === -1) {
+                // 該当するエントリは存在しなかったので無視
+                // eslint-disable-next-line no-continue
                 continue;
             } else {
                 // 該当するエントリが存在したので、wordidlistにエントリの中身をすべて追加
@@ -48,12 +51,12 @@ function jskawari() {
             }
         }
         // エントリ辞書から該当単語IDをランダム選択
-        if (wordidlist.length == 0) {
+        if (wordidlist.length === 0) {
             // 有効な中身を持つエントリが一つも存在しなかった
             return "";
         }
         // ここに来るということは、有効な単語が一つは存在する
-        let wordindex = Math.floor(Math.random() * wordidlist.length);
+        const wordindex = Math.floor(Math.random() * wordidlist.length);
         // 単語IDから単語に変換の上で解釈を行わず返す
         return wordcollection[wordidlist[wordindex]];
     }
@@ -61,9 +64,9 @@ function jskawari() {
     function inlineScriptCall(commandline: string) {
         // 関数呼び出し '関数名:(引数1 引数2...)
         // 引数の間、関数名、コロンの間にスペースがあってもよく、無視される
-        let splitpos = commandline.indexOf(":");
-        let funcname = commandline.substring(0, splitpos).trim();
-        let funcargs = commandline
+        const splitpos = commandline.indexOf(":");
+        const funcname = commandline.substring(0, splitpos).trim();
+        const funcargs = commandline
             .substring(splitpos + 1)
             .trim()
             .split(/\s+/);
@@ -74,13 +77,13 @@ function jskawari() {
     }
     // 内部関数：与えられた単語を文法に従って、ただの文字列になるまで再帰的に解釈する
     function parse(word: string) {
-        var answer = word;
-        //エントリ呼び出し見付ける正規表現、最も内側かつ最も左側にマッチする
-        var entrycallRegex = /\$\{([^${}]+)\}/;
-        var isExistEntryCall = true;
+        let answer = word;
+        // エントリ呼び出し見付ける正規表現、最も内側かつ最も左側にマッチする
+        const entrycallRegex = /\$\{([^${}]+)\}/;
+        let isExistEntryCall = true;
         historydictionary.splice(0);
         do {
-            let result = entrycallRegex.exec(answer);
+            const result = entrycallRegex.exec(answer);
             if (result == null) {
                 isExistEntryCall = false;
             } else {
@@ -95,6 +98,7 @@ function jskawari() {
                     entryString = rawEntryCall(...result[1].split("+").map((s) => s.trim()));
                 }
                 answer = answer.replace(result[0], entryString);
+                // eslint-disable-next-line no-restricted-globals
                 if (isNaN(result[1] as any)) {
                     // もしエントリ名が数字ではない＝通常のエントリであれば、エントリの中身を履歴辞書に追加
                     historydictionary.push(entryString);
@@ -145,19 +149,18 @@ function jskawari() {
         // そもそもエントリが存在しない場合はfalseを返して終わる
         if (entrycollection.indexOf(entry) < 0) {
             return false;
-        } else if (wordcollection.indexOf(word) < 0) {
-            return false;
-        } else {
-            if (worddictionary[entry].indexOf(wordcollection.indexOf(word)) >= 0) {
-                return true;
-            } else {
-                return false;
-            }
         }
+        if (wordcollection.indexOf(word) < 0) {
+            return false;
+        }
+        if (worddictionary[entry].indexOf(wordcollection.indexOf(word)) >= 0) {
+            return true;
+        }
+        return false;
     }
     // 内部関数: 指定したエントリにある全ての単語を配列で返す
     function enumerate(entry: string) {
-        var result = [];
+        const result = [];
         if (entrycollection.indexOf(entry) >= 0) {
             for (let i = 0; i < worddictionary[entry].length; i++) {
                 result.push(wordcollection[worddictionary[entry][i]]);
@@ -176,34 +179,37 @@ function jskawari() {
     // クロージャーとしての返り値 => APIの開示
     return {
         // [API] call: エントリ呼び出し
-        call: function (entry: string) {
+        call(entry: string) {
             return parse(rawEntryCall(entry));
         },
         // [API] insert: 辞書に単語追加（複数単語同時追加対応）
-        insert: function (entry: string) {
+        insert(entry: string) {
+            // eslint-disable-next-line func-names
             return function (...words: string[]) {
                 return insert(entry, ...words);
             };
         },
         // [API] clear: エントリの削除
-        clear: function (entry: string) {
+        clear(entry: string) {
             return clear(entry);
         },
         // [API] set: 辞書に単語を格納（複数単語同時追加対応）
-        set: function (entry: string) {
+        set(entry: string) {
+            // eslint-disable-next-line func-names
             return function (...words: string[]) {
                 return set(entry, ...words);
             };
         },
         // [API] find: エントリの検索、もしwordがfindに存在するならtrue、それ以外はfalseを返す
-        find: function (entry: string, word: string) {
+        find(entry: string, word: string) {
             return find(entry, word);
         },
         // [API] enumerate: 指定したエントリにあるすべての単語を配列で返す
-        enumerate: function (entry: string) {
+        enumerate(entry: string) {
             return enumerate(entry);
         },
-        addfunc: function (funcname: string) {
+        addfunc(funcname: string) {
+            // eslint-disable-next-line func-names
             return function (funcbody: (...args: any[]) => any) {
                 return addfunc(funcname, funcbody);
             };
