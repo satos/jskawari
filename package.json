@@ -13,7 +13,7 @@
   "scripts": {
     "prepare": "npm run build",
     "prepublishOnly": "npm-run-all prettier:check eslint:check test",
-    "test": "node ./test/test.js",
+    "test": "jest",
     "build": "npm-run-all --parallel cjs esm",
     "clean": "npm-run-all --parallel cjs:clean esm:clean",
     "cjs": "npm-run-all cjs:clean cjs:tsc",
