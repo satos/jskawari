@@ -5,7 +5,7 @@ describe("choice", () => {
     test("basic", () => {
         const dic = jskawari();
         dic.insert("choicetest")("${choice:a b c}");
-        const results: {[str: string]: boolean} = {};
+        const results: { [str: string]: boolean } = {};
         for (let i = 0; i < 100; ++i) {
             results[dic.call("choicetest")] = true;
         }
