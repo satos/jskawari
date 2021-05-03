@@ -5,7 +5,7 @@
         "project": "tsconfig.json"
     },
     "plugins": ["@typescript-eslint"],
-    "extends": ["airbnb-typescript", "prettier"],
+    "extends": ["airbnb-typescript/base", "prettier"],
     "rules": {
         "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }]
     },
