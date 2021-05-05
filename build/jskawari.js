@@ -1,5 +1,49 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+// 階層付きヒストリー
+class stackhistory {
+    constructor() {
+        this.hisdic = [[]];
+        this.stacklevel = 0;
+    }
+    // 階層付きヒストリーの階層を１個深くする
+    pushstack() {
+        this.hisdic.push([]);
+        this.stacklevel++;
+    }
+    // 階層付きヒストリーの一番浅い階層を削除する。既に一番浅い階層だった場合は何もしない。
+    popstack() {
+        if (this.stacklevel <= 0) { // これ以上階層を浅く出来ない
+            this.stacklevel = 0;
+            return;
+        }
+        this.hisdic[this.stacklevel].splice(0);
+        this.hisdic.pop();
+        this.stacklevel--;
+        return;
+    }
+    // 今の階層のヒストリーに要素を一個積む
+    pushentry(element) {
+        this.hisdic[this.stacklevel].push(element);
+        return;
+    }
+    // 今の階層のヒストリーからn-1番目の要素を参照する。
+    at(num) {
+        if (num < 0 || num > this.hisdic[this.stacklevel].length) {
+            return "";
+        }
+        return this.hisdic[this.stacklevel][num];
+    }
+    // 今の階層のヒストリーの要素数を返す
+    length() {
+        return this.hisdic[this.stacklevel].length;
+    }
+    // 今の階層のヒストリーを空にする
+    clear() {
+        this.hisdic[this.stacklevel].splice(0);
+        return;
+    }
+}
 function jskawari() {
     // 単語集合：エントリに所属する全ての単語の集合で重複なし。単語をindexOfした結果が単語IDとなり、辞書配列に格納される。
     const wordcollection = [];
@@ -9,7 +53,7 @@ function jskawari() {
     const worddictionary = {};
     // 履歴辞書：一回の単語パースの際、解釈が確定したエントリ呼び出しが順に格納される辞書。パースの間のみ有効。N番目のエントリを${N-1}で引用できる。
     // この辞書は単語IDではなく、文字列が直接格納されている
-    const historydictionary = [];
+    const historydictionary = new stackhistory();
     // 関数辞書: インラインスクリプトが格納される辞書
     const functiondictionary = {
         choice(...fargs) {
@@ -35,13 +79,13 @@ function jskawari() {
             if (isNaN(entry) === false) {
                 // エントリ名が整数なので履歴辞書の参照
                 const index = Math.floor(entry);
-                if (index < 0 || index >= historydictionary.length) {
+                if (index < 0 || index >= historydictionary.length()) {
                     // 履歴辞書の範囲外だったので無視
                     // eslint-disable-next-line no-continue
                     continue;
                 }
                 else {
-                    wordidlist.push(wordID(historydictionary[index])); // 履歴辞書から単語IDに変換してwordidlistに追加
+                    wordidlist.push(wordID(historydictionary.at(index))); // 履歴辞書から単語IDに変換してwordidlistに追加
                 }
             }
             else if (entrycollection.indexOf(entry) === -1) {
@@ -85,7 +129,7 @@ function jskawari() {
         // エントリ呼び出し見付ける正規表現、最も内側かつ最も左側にマッチする
         const entrycallRegex = /\$\{([^${}]+)\}/;
         let isExistEntryCall = true;
-        historydictionary.splice(0);
+        historydictionary.clear();
         do {
             const result = entrycallRegex.exec(answer);
             if (result == null) {
@@ -103,11 +147,18 @@ function jskawari() {
                     // エントリ名の前後にスペースがあってもよいので、スペースは排除する
                     entryString = rawEntryCall(...result[1].split("+").map((s) => s.trim()));
                 }
+                if (entrycallRegex.test(entryString)) {
+                    // エントリ呼び出しの結果に更にエントリ呼び出しを含んでいるので、再帰的に解釈
+                    // 再帰呼び出しの際、履歴エントリのスタックを増やす
+                    historydictionary.pushstack();
+                    entryString = parse(entryString);
+                    historydictionary.popstack();
+                }
                 answer = answer.replace(result[0], entryString);
                 // eslint-disable-next-line no-restricted-globals
                 if (isNaN(result[1])) {
                     // もしエントリ名が数字ではない＝通常のエントリであれば、エントリの中身を履歴辞書に追加
-                    historydictionary.push(entryString);
+                    historydictionary.pushentry(entryString);
                 }
             }
         } while (isExistEntryCall);
