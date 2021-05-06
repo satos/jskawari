@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 // 階層付きヒストリー
-class stackhistory {
+class StackHistory {
     constructor() {
         this.hisdic = [[]];
         this.stacklevel = 0;
@@ -9,23 +9,22 @@ class stackhistory {
     // 階層付きヒストリーの階層を１個深くする
     pushstack() {
         this.hisdic.push([]);
-        this.stacklevel++;
+        this.stacklevel += 1;
     }
     // 階層付きヒストリーの一番浅い階層を削除する。既に一番浅い階層だった場合は何もしない。
     popstack() {
-        if (this.stacklevel <= 0) { // これ以上階層を浅く出来ない
+        if (this.stacklevel <= 0) {
+            // これ以上階層を浅く出来ない
             this.stacklevel = 0;
             return;
         }
         this.hisdic[this.stacklevel].splice(0);
         this.hisdic.pop();
-        this.stacklevel--;
-        return;
+        this.stacklevel -= 1;
     }
     // 今の階層のヒストリーに要素を一個積む
     pushentry(element) {
         this.hisdic[this.stacklevel].push(element);
-        return;
     }
     // 今の階層のヒストリーからn-1番目の要素を参照する。
     at(num) {
@@ -41,7 +40,6 @@ class stackhistory {
     // 今の階層のヒストリーを空にする
     clear() {
         this.hisdic[this.stacklevel].splice(0);
-        return;
     }
 }
 function jskawari() {
@@ -53,7 +51,7 @@ function jskawari() {
     const worddictionary = {};
     // 履歴辞書：一回の単語パースの際、解釈が確定したエントリ呼び出しが順に格納される辞書。パースの間のみ有効。N番目のエントリを${N-1}で引用できる。
     // この辞書は単語IDではなく、文字列が直接格納されている
-    const historydictionary = new stackhistory();
+    const historydictionary = new StackHistory();
     // 関数辞書: インラインスクリプトが格納される辞書
     const functiondictionary = {
         choice(...fargs) {
