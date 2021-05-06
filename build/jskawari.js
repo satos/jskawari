@@ -237,7 +237,7 @@ function jskawari() {
         if (entrycollection.indexOf(entry) === -1) {
             return "";
         }
-        if (worddictionary[entry].length <= num) {
+        if (worddictionary[entry].length < num) {
             return "";
         }
         const localdic = [...worddictionary[entry]];
