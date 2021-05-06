@@ -53,11 +53,7 @@ function jskawari() {
     // この辞書は単語IDではなく、文字列が直接格納されている
     const historydictionary = new StackHistory();
     // 関数辞書: インラインスクリプトが格納される辞書
-    const functiondictionary = {
-        choice(...fargs) {
-            return fargs[Math.floor(Math.random() * fargs.length)];
-        },
-    };
+    const functiondictionary = {};
     // 内部関数：単語から単語IDを返す。単語集合に存在しない単語だった場合、新しい単語IDを生成し単語集合に格納した上で単語IDを返す
     function wordID(word) {
         if (wordcollection.indexOf(word) < 0) {
@@ -231,6 +227,30 @@ function jskawari() {
         }
         functiondictionary[funcname] = funcbody;
     }
+    // インライン関数定義
+    // choice: 引数の中から一つの単語を選んで返す
+    functiondictionary.choice = (...fargs) => fargs[Math.floor(Math.random() * fargs.length)];
+    // wordselect: 指定したエントリから指定個数だけ単語を選び、<元のエントリ名.0>、<元のエントリ名.1>...というエントリに格納する
+    functiondictionary.wordselect = (...fargs) => {
+        const entry = fargs[0];
+        const num = fargs[1];
+        if (entrycollection.indexOf(entry) === -1) {
+            return "";
+        }
+        if (worddictionary[entry].length <= num) {
+            return "";
+        }
+        const localdic = [...worddictionary[entry]];
+        let localwordid = 0;
+        let localword = "";
+        for (let index = 0; index < num; index++) {
+            [localwordid] = localdic.splice(Math.floor(Math.random() * localdic.length), 1);
+            localword = wordcollection[localwordid];
+            clear(`${entry}.${index}`);
+            set(`${entry}.${index}`, localword);
+        }
+        return "";
+    };
     // クロージャーとしての返り値 => APIの開示
     return {
         // [API] call: エントリ呼び出し

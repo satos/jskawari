@@ -13,6 +13,22 @@ describe("choice", () => {
     });
 });
 
+describe("wordselect", () => {
+    let dic: ReturnType<typeof import("../jskawari").default>;
+
+    beforeEach(() => {
+        dic = jskawari();
+        dic.insert("number")("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
+        dic.insert("sentence")("${wordselect:number 5}${number.0} ${number.1} ${number.2} ${number.3} ${number.4}");
+    });
+
+    test("basic", () => {
+        const randomSpy = jest.spyOn(Math, "random");
+        randomSpy.mockReturnValue(0);
+        assert.strictEqual(dic.call("sentence"), "1 2 3 4 5");
+    });
+});
+
 describe("custom func", () => {
     test("basic", () => {
         const dic = jskawari();
