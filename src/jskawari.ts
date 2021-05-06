@@ -16,7 +16,8 @@ class stackhistory {
 
     // 階層付きヒストリーの一番浅い階層を削除する。既に一番浅い階層だった場合は何もしない。
     popstack(): void {
-        if (this.stacklevel <= 0) { // これ以上階層を浅く出来ない
+        if (this.stacklevel <= 0) {
+            // これ以上階層を浅く出来ない
             this.stacklevel = 0;
             return;
         }
