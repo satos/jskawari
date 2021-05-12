@@ -6,17 +6,19 @@ describe("エントリ集合演算", () => {
 
     beforeEach(() => {
         dic = jskawari();
-        dic.insert("A")("A1", "A2", "A3");
-        dic.insert("B")("B1", "B2", "B3");
-        dic.insert("C")("C1", "C2", "C3", "C4");
-        dic.insert("AB")("${A+B}");
-        dic.insert("BC")("${B+C}");
-        dic.insert("CA")("${ C + A }");
-        dic.insert("ABC")("${A+B+C}");
-        dic.insert("TripleA")("${ AAA    }");
-        dic.insert("SetHistory")("${A+B},${0}");
-        dic.insert("HistorySet")("${A},${B},${0+1}");
-        dic.insert("SetHistorySet")("${A+B},${B+C},${0+1}");
+        dic.loadobj({
+            A: ["A1", "A2", "A3"],
+            B: ["B1", "B2", "B3"],
+            C: ["C1", "C2", "C3", "C4"],
+            AB: ["${A+B}"],
+            BC: ["${B+C}"],
+            CA: ["${ C + A }"],
+            ABC: ["${A+B+C}"],
+            TripleA: ["${ AAA    }"],
+            SetHistory: ["${A+B},${0}"],
+            HistorySet: ["${A},${B},${0+1}"],
+            SetHistorySet: ["${A+B},${B+C},${0+1}"],
+        });
     });
 
     describe.each([

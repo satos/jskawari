@@ -10,6 +10,11 @@ describe("call", () => {
         dic.insert("number2")("1", "2", "3", "4", "5", "6", "7", "8", "9", "${number2.sub}");
         dic.insert("number2.sub")("A", "10");
         dic.insert("sentence")("${number2} ${number2} ${number2} ${2} ${1} ${0}");
+        const dicobj = {
+            test1: ["a", "b", "c", "d", "e"],
+            test2: ["Z", "Y", "X", "W", "V"],
+        };
+        dic.loadobj(dicobj);
     });
 
     test("内包されるエントリがランダムに呼び出され、履歴エントリが機能する。", () => {
@@ -30,5 +35,10 @@ describe("call", () => {
         assert.strictEqual(dic.call("number"), "10");
         assert.strictEqual(dic.call("number"), "1");
         assert.strictEqual(dic.call("number"), "6");
+    });
+
+    test("辞書オブジェクトを読み込める", () => {
+        assert.deepStrictEqual(dic.enumerate("test1"), ["a", "b", "c", "d", "e"]);
+        assert.deepStrictEqual(dic.enumerate("test2"), ["Z", "Y", "X", "W", "V"]);
     });
 });

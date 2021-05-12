@@ -70,9 +70,9 @@ function jskawari() {
         for (let eindex = 0; eindex < entries.length; eindex++) {
             const entry = entries[eindex];
             // eslint-disable-next-line no-restricted-globals
-            if (isNaN(entry) === false) {
+            if (/^[-]?\d+$/.test(entry)) {
                 // エントリ名が整数なので履歴辞書の参照
-                const index = Math.floor(entry);
+                const index = Number(entry);
                 if (index < 0 || index >= historydictionary.length()) {
                     // 履歴辞書の範囲外だったので無視
                     // eslint-disable-next-line no-continue
@@ -227,6 +227,15 @@ function jskawari() {
         }
         functiondictionary[funcname] = funcbody;
     }
+    // 内部関数: JSON互換のオブジェクトを辞書としてロードする
+    function loadobj(dicobj) {
+        // 各プロパティを辞書定義と見なしエントリ群に単語を追加
+        const keys = Object.keys(dicobj);
+        const values = Object.values(dicobj);
+        for (let index = 0; index < keys.length; index++) {
+            insert(keys[index], ...values[index]);
+        }
+    }
     // インライン関数定義
     // choice: 引数の中から一つの単語を選んで返す
     functiondictionary.choice = (...fargs) => fargs[Math.floor(Math.random() * fargs.length)];
@@ -234,20 +243,16 @@ function jskawari() {
     functiondictionary.wordselect = (...fargs) => {
         const entry = fargs[0];
         const num = fargs[1];
-        if (entrycollection.indexOf(entry) === -1) {
-            return "";
-        }
-        if (worddictionary[entry].length < num) {
-            return "";
-        }
-        const localdic = [...worddictionary[entry]];
-        let localwordid = 0;
-        let localword = "";
-        for (let index = 0; index < num; index++) {
-            [localwordid] = localdic.splice(Math.floor(Math.random() * localdic.length), 1);
-            localword = wordcollection[localwordid];
-            clear(`${entry}.${index}`);
-            set(`${entry}.${index}`, localword);
+        if (entrycollection.indexOf(entry) >= 0 && num <= worddictionary[entry].length) {
+            const localdic = [...worddictionary[entry]];
+            let localwordid = 0;
+            let localword = "";
+            for (let index = 0; index < num; index++) {
+                [localwordid] = localdic.splice(Math.floor(Math.random() * localdic.length), 1);
+                localword = wordcollection[localwordid];
+                clear(`${entry}.${index}`);
+                set(`${entry}.${index}`, localword);
+            }
         }
         return "";
     };
@@ -283,11 +288,16 @@ function jskawari() {
         enumerate(entry) {
             return enumerate(entry);
         },
+        // [API] インライン関数を定義する
         addfunc(funcname) {
             // eslint-disable-next-line func-names
             return function (funcbody) {
                 return addfunc(funcname, funcbody);
             };
+        },
+        // [API] JSON互換オブジェクトを辞書として読み込み単語追加
+        loadobj(dicobj) {
+            return loadobj(dicobj);
         },
     };
 }

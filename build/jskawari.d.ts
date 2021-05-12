@@ -6,5 +6,8 @@ declare function jskawari(): {
     find(entry: string, word: string): boolean;
     enumerate(entry: string): string[];
     addfunc(funcname: string): (funcbody: (...args: any[]) => any) => void;
+    loadobj(dicobj: {
+        [key: string]: string[];
+    }): void;
 };
 export default jskawari;
