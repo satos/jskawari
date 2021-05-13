@@ -150,7 +150,7 @@ function jskawari() {
                 }
                 answer = answer.replace(result[0], entryString);
                 // eslint-disable-next-line no-restricted-globals
-                if (isNaN(result[1])) {
+                if (/^[-]?\d+$/.test(result[1].trim()) === false) {
                     // もしエントリ名が数字ではない＝通常のエントリであれば、エントリの中身を履歴辞書に追加
                     historydictionary.pushentry(entryString);
                 }
@@ -242,7 +242,7 @@ function jskawari() {
     // wordselect: 指定したエントリから指定個数だけ単語を選び、<元のエントリ名.0>、<元のエントリ名.1>...というエントリに格納する
     functiondictionary.wordselect = (...fargs) => {
         const entry = fargs[0];
-        const num = fargs[1];
+        const num = /^\d+$/.test(fargs[1]) ? Number(fargs[1]) : 0;
         if (entrycollection.indexOf(entry) >= 0 && num <= worddictionary[entry].length) {
             const localdic = [...worddictionary[entry]];
             let localwordid = 0;

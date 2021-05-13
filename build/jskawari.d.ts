@@ -5,7 +5,7 @@ declare function jskawari(): {
     set(entry: string): (...words: string[]) => void;
     find(entry: string, word: string): boolean;
     enumerate(entry: string): string[];
-    addfunc(funcname: string): (funcbody: (...args: any[]) => any) => void;
+    addfunc(funcname: string): (funcbody: (...args: string[]) => string) => void;
     loadobj(dicobj: {
         [key: string]: string[];
     }): void;

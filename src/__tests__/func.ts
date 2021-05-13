@@ -32,7 +32,7 @@ describe("wordselect", () => {
 describe("custom func", () => {
     test("basic", () => {
         const dic = jskawari();
-        dic.addfunc("foo")((n1, n2) => n1 * n2);
+        dic.addfunc("foo")((n1, n2) => (Number(n1) * Number(n2)).toString());
         dic.insert("footest")("${foo:2 3}");
         assert.strictEqual(dic.call("footest"), "6");
     });

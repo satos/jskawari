@@ -62,7 +62,7 @@ function jskawari() {
     // この辞書は単語IDではなく、文字列が直接格納されている
     const historydictionary = new StackHistory();
     // 関数辞書: インラインスクリプトが格納される辞書
-    const functiondictionary: { [name: string]: (...fargs: any[]) => any } = {};
+    const functiondictionary: { [name: string]: (...fargs: string[]) => string } = {};
 
     // 内部関数：単語から単語IDを返す。単語集合に存在しない単語だった場合、新しい単語IDを生成し単語集合に格納した上で単語IDを返す
     function wordID(word: string) {
@@ -155,7 +155,7 @@ function jskawari() {
                 }
                 answer = answer.replace(result[0], entryString);
                 // eslint-disable-next-line no-restricted-globals
-                if (isNaN(result[1] as any)) {
+                if (/^[-]?\d+$/.test(result[1].trim()) === false) {
                     // もしエントリ名が数字ではない＝通常のエントリであれば、エントリの中身を履歴辞書に追加
                     historydictionary.pushentry(entryString);
                 }
@@ -225,7 +225,7 @@ function jskawari() {
         return result; // 存在しないエントリだった場合は空配列を返す
     }
     // 内部関数: インラインスクリプトを追加する
-    function addfunc(funcname: string, funcbody: (...args: any[]) => any) {
+    function addfunc(funcname: string, funcbody: (...args: string[]) => string) {
         if (funcname in functiondictionary) {
             delete functiondictionary[funcname];
         }
@@ -246,7 +246,7 @@ function jskawari() {
     // wordselect: 指定したエントリから指定個数だけ単語を選び、<元のエントリ名.0>、<元のエントリ名.1>...というエントリに格納する
     functiondictionary.wordselect = (...fargs) => {
         const entry: string = fargs[0];
-        const num: number = fargs[1];
+        const num: number = /^\d+$/.test(fargs[1]) ? Number(fargs[1]) : 0;
         if (entrycollection.indexOf(entry) >= 0 && num <= worddictionary[entry].length) {
             const localdic: number[] = [...worddictionary[entry]];
             let localwordid: number = 0;
@@ -296,7 +296,7 @@ function jskawari() {
         // [API] インライン関数を定義する
         addfunc(funcname: string) {
             // eslint-disable-next-line func-names
-            return function (funcbody: (...args: any[]) => any) {
+            return function (funcbody: (...args: string[]) => string) {
                 return addfunc(funcname, funcbody);
             };
         },
